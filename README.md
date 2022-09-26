@@ -15,6 +15,8 @@ configuration and much more than what is possible with a docker/podman container
   The molecule configuration in "molecule/default/molecule.yml" starts up a Ubuntu 22.04 and a CentOS
 8 Stream LXC instance. Customize to your needs.
 
+**Both Kubernetes and K3s are fully supported.**
+
 
 Requirements
 ------------
