@@ -19,7 +19,7 @@ configuration and much more than what is possible with a docker/podman container
 Requirements
 ------------
 
-**System:
+**System:**
 
 Linux OS with LXD Linux system container and virtual machine manager installed
 
