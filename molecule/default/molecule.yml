@@ -1,0 +1,30 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: lxd
+platforms:
+  - name: centos-stream-8
+    source:
+      type: image
+      mode: pull
+      server: https://images.linuxcontainers.org
+      protocol: simplestreams
+      alias: centos/8-Stream/amd64
+    profiles: ["default"]
+  - name: ubuntu2204
+    source:
+      type: image
+      mode: pull
+      server: https://images.linuxcontainers.org
+      protocol: simplestreams
+      alias: ubuntu/jammy/cloud
+    profiles: ["default"]
+provisioner:
+  name: ansible
+verifier:
+  name: ansible
+lint: |
+  set -e
+  yamllint .
+  ansible-lint

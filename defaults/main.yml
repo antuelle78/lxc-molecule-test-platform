@@ -1,0 +1,8 @@
+---
+# defaults file for lxc_test_plat
+
+perso_key_name: "lxc user"
+perso_pubkey: ""
+pub_key_user: "admin"
+
+new_user_passwd: ''

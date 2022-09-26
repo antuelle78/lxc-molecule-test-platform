@@ -1,0 +1,125 @@
+---
+# tasks file for lxc_test_plat
+
+- name: Ensure opessh server is installed
+  ansible.builtin.apt:
+    name: openssh-server
+    state: present
+    update_cache: true
+  when: ansible_os_family == 'Debian'
+
+- name: Ensure opessh server is install Red Hat based systems
+  ansible.builtin.yum:
+    name:
+      - openssh-server
+      - epel-release
+    state: present
+  when: ansible_os_family == 'RedHat'
+
+- name: Enable pub key auth for RehHat OS family
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    search_string: "#PubkeyAuthentication yes"
+    line: PubkeyAuthentication yes
+  when: ansible_os_family == 'RedHat'
+  notify: restart_sshd
+
+- name: Install htop and net-tools
+  ansible.builtin.package:
+    name:
+      - net-tools
+      - htop
+      - vim
+    state: present
+
+- name: "Creating user =>> {{ pub_key_user }} on CentOS/Amazon Linux"
+  ansible.builtin.user:
+    name: {{ pub_key_user }}
+    password: '{{ new_user_passwd }}'
+    groups: wheel
+    state: present
+    shell: /bin/bash
+    system: false
+    createhome: true
+    home: /home/{{ pub_key_user }}
+  when: ansible_os_family != 'Debian'
+  tags:
+    - auth
+
+- name: "Creating user =>> {{ pub_key_user }} on Ubuntu"
+  ansible.builtin.user:
+    name: {{ pub_key_user }}
+    password: '{{ new_user_passwd }}'
+    groups: sudo
+    state: present
+    shell: /bin/bash
+    system: false
+    createhome: true
+    home: /home/{{ pub_key_user }}
+  when: ansible_os_family == 'Debian'
+  tags:
+    - auth
+
+- name: "Inserting SSH  authorized key for "
+  ansible.builtin.authorized_key:
+    user: "{{ pub_key_user }}"
+    state: present
+    key: "{{ perso_pubkey }}"
+  ignore_errors: true
+  tags:
+    - add_perso_auth_key
+
+- name: Configure passwordless sudo Debian OS family
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers
+    state: present
+    line: '{{ pub_key_user }} ALL=(ALL) NOPASSWD:ALL'
+    validate: 'visudo -cf %s'
+  when: ansible_os_family == 'Debian'
+
+- name: Configure passwordless sudo Red Hat OS family
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers
+    state: present
+    line: '{{ pub_key_user }} ALL=(ALL) NOPASSWD:ALL'
+    validate: 'visudo -cf %s'
+  when: ansible_os_family != 'Debian'
+
+- name: Make sure all packages are up to date
+  ansible.builtin.yum:
+    name: '*'
+    state: latest
+  register: systemstatus
+  when: ansible_distribution != "Ubuntu"
+  tags:
+    - patchsys
+
+- name: Make sure all packages are up to date ubuntu
+  ansible.builtin.apt:
+    name: '*'
+    state: latest
+    update_cache: true
+  register: systemstatus
+  when: ansible_distribution == "Ubuntu"
+  tags:
+    - patchsys
+
+- name: Reboot system if needed
+  ansible.builtin.reboot:
+    reboot_timeout: 240
+  when: systemstatus is changed
+  register: rebootedornot
+  tags:
+    - patchsys
+
+- name: Make sure K3s/k8s can run inside container
+  ansible.builtin.command: 'lxc config device add "{{ inventory_hostname }}"
+    "kmsg" unix-char source="/dev/kmsg" path="/dev/kmsg"'
+  delegate_to: localhost
+  become: false
+  when: ansible_mounts[1].mount is not defined
+
+- name: Display IP addresse
+  ansible.builtin.debug:
+    msg: "The IP address of {{ inventory_hostname }} is:
+      {{ ansible_default_ipv4.address }}"
