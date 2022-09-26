@@ -32,7 +32,7 @@
       - vim
     state: present
 
-- name: "Creating user =>> "{{ pub_key_user }}" on CentOS/Amazon Linux"
+- name: "Creating user =>> {{ pub_key_user }} on CentOS/Amazon Linux"
   ansible.builtin.user:
     name: "{{ pub_key_user }}"
     password: '{{ new_user_passwd }}'
@@ -46,7 +46,7 @@
   tags:
     - auth
 
-- name: "Creating user =>> "{{ pub_key_user }}" on Ubuntu"
+- name: "Creating user =>> {{ pub_key_user }} on Ubuntu"
   ansible.builtin.user:
     name: "{{ pub_key_user }}"
     password: '{{ new_user_passwd }}'
