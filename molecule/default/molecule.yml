@@ -11,7 +11,8 @@ platforms:
       server: https://images.linuxcontainers.org
       protocol: simplestreams
       alias: centos/8-Stream/amd64
-    profiles: ["default"]
+    profiles:
+      - default
   - name: ubuntu2204
     source:
       type: image
@@ -19,7 +20,8 @@ platforms:
       server: https://images.linuxcontainers.org
       protocol: simplestreams
       alias: ubuntu/jammy/cloud
-    profiles: ["default"]
+    profiles:
+      - default
 provisioner:
   name: ansible
 verifier:

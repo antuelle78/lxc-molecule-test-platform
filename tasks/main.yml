@@ -35,7 +35,7 @@
 - name: "Creating user =>> {{ pub_key_user }} on CentOS/Amazon Linux"
   ansible.builtin.user:
     name: "{{ pub_key_user }}"
-    password: '{{ new_user_passwd }}'
+    password: "{{ new_user_passwd }}"
     groups: wheel
     state: present
     shell: /bin/bash
@@ -49,7 +49,7 @@
 - name: "Creating user =>> {{ pub_key_user }} on Ubuntu"
   ansible.builtin.user:
     name: "{{ pub_key_user }}"
-    password: '{{ new_user_passwd }}'
+    password: "{{ new_user_passwd }}"
     groups: sudo
     state: present
     shell: /bin/bash
@@ -73,21 +73,21 @@
   ansible.builtin.lineinfile:
     path: /etc/sudoers
     state: present
-    line: '{{ pub_key_user }} ALL=(ALL) NOPASSWD:ALL'
-    validate: 'visudo -cf %s'
+    line: "{{ pub_key_user }} ALL=(ALL) NOPASSWD:ALL"
+    validate: "visudo -cf %s"
   when: ansible_os_family == 'Debian'
 
 - name: Configure passwordless sudo Red Hat OS family
   ansible.builtin.lineinfile:
     path: /etc/sudoers
     state: present
-    line: '{{ pub_key_user }} ALL=(ALL) NOPASSWD:ALL'
-    validate: 'visudo -cf %s'
+    line: "{{ pub_key_user }} ALL=(ALL) NOPASSWD:ALL"
+    validate: "visudo -cf %s"
   when: ansible_os_family != 'Debian'
 
 - name: Make sure all packages are up to date
   ansible.builtin.yum:
-    name: '*'
+    name: "*"
     state: latest
   register: systemstatus
   when: ansible_distribution != "Ubuntu"
@@ -96,7 +96,7 @@
 
 - name: Make sure all packages are up to date ubuntu
   ansible.builtin.apt:
-    name: '*'
+    name: "*"
     state: latest
     update_cache: true
   register: systemstatus
@@ -119,7 +119,7 @@
   become: false
   when: ansible_mounts[1].mount is not defined
 
-- name: Display IP addresse
+- name: Display IP address
   ansible.builtin.debug:
     msg: "The IP address of {{ inventory_hostname }} is:
       {{ ansible_default_ipv4.address }}"
