@@ -1,3 +1,14 @@
 #!/bin/bash
 
-python3 -c 'import crypt,getpass;pw=getpass.getpass();print(crypt.crypt(pw) if (pw==getpass.getpass("Confirm: ")) else exit())'
+read -s -p "Enter password: " pw
+echo ""
+read -s -p "Confirm password: " pw_confirm
+echo ""
+
+if [ "$pw" != "$pw_confirm" ]; then
+    echo "Passwords do not match"
+    exit 1
+fi
+
+hash=$(python3 -c "import hashlib, binascii; print(hashlib.pbkdf2_hmac('sha512', b'$pw', b'salt', 100000, dklen=64))")
+echo "$hash"
